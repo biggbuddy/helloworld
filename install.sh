@@ -26,6 +26,7 @@ cp nginx.conf /etc/nginx/sites-available/default
 
 mkdir -p /app/config/ 
 wget https://raw.githubusercontent.com/biggbuddy/helloworld/master/acme.sh
+chmod u+x acme.sh
 ./acme.sh --register-account  -m fushcpc@gmail.com --server zerossl
 ./acme.sh --issue -d $V2RAY_DOMAIN --standalone -k ec-256 
 ./acme.sh --installcert -d $V2RAY_DOMAIN --fullchainpath /app/config/v2ray.crt --keypath /app/config/v2ray.key --ecc
