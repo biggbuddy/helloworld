@@ -46,6 +46,10 @@ function print_ok() {
   echo -e "${OK} ${Blue} $1 ${Font}"
 }
 
+function print_error() {
+  echo -e "${ERROR} ${RedBG} $1 ${Font}"
+}
+
 function is_root() {
   if [[ 0 == "$UID" ]]; then
     print_ok "当前用户是 root 用户，开始安装流程"
