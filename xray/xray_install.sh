@@ -7,6 +7,8 @@
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 stty erase ^?
 
+sudo -i
+
 cd "$(
   cd "$(dirname "$0")" || exit
   pwd
