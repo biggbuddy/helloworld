@@ -413,11 +413,11 @@ function down_config_files(){
 }
 
 is_root
+down_config_files
 system_check
 change_timezone
 dependency_install
 basic_optimization
-down_config_files
 domain_check
 port_exist_check 80
 xray_install
