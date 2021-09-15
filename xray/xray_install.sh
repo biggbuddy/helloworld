@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #====================================================
-modify from https://github.com/wulabing/Xray_onekey
+# modify from https://github.com/wulabing/Xray_onekey
 #====================================================
 
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -41,22 +41,9 @@ WS_PATH="/$(head -n 10 /dev/urandom | md5sum | head -c ${random_num})/"
 INS="apt install -y"
 
 
-function install_xray() {
-  is_root
-  system_check
-  dependency_install
-  basic_optimization
-  domain_check
-  port_exist_check 80
-  xray_install
-  configure_xray
-  nginx_install
-  configure_nginx
-  configure_web
-  generate_certificate
-  ssl_judge_and_install
-  restart_all
-  basic_information
+
+function print_ok() {
+  echo -e "${OK} ${Blue} $1 ${Font}"
 }
 
 function is_root() {
@@ -295,9 +282,11 @@ function nginx_install() {
   mkdir -p /etc/nginx/conf.d >/dev/null 2>&1
 }
 
+# wget -O ${domain}.conf https://raw.githubusercontent.com/wulabing/Xray_onekey/${github_branch}/config/web.conf
+
 function configure_nginx() {
   nginx_conf="/etc/nginx/conf.d/${domain}.conf"
-  cd /etc/nginx/conf.d/ && rm -f ${domain}.conf && cp web.conf .
+  cd /etc/nginx/conf.d/ && rm -f ${domain}.conf && wget -O ${domain}.conf https://raw.githubusercontent.com/biggbuddy/helloworld/${github_branch}/xray/web.conf
   sed -i "s/xxx/${domain}/g" ${nginx_conf}
   judge "Nginx config modify"
 
@@ -405,3 +394,19 @@ function vless_xtls-rprx-direct_link() {
   print_ok "URL 二维码（VLESS + TCP + XTLS）（请在浏览器中访问）"
   print_ok "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless://$UUID@$DOMAIN:$PORT?security=xtls%26flow=$FLOW%23XTLS_wulabing-$DOMAIN"
 }
+
+is_root
+system_check
+dependency_install
+basic_optimization
+domain_check
+port_exist_check 80
+xray_install
+configure_xray
+nginx_install
+configure_nginx
+configure_web
+generate_certificate
+ssl_judge_and_install
+restart_all
+basic_information
