@@ -486,6 +486,7 @@ function down_config_files(){
 }
 
 is_root
+down_config_files
 system_check
 dependency_install
 basic_optimization
