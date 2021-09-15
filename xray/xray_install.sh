@@ -291,6 +291,15 @@ function configure_xray() {
   # modify_port
 }
 
+function configure_xray_ws() {
+  cd /usr/local/etc/xray && rm -f config.json && cp ~/xray_tls_ws_mix-rprx-direct.json config.json
+  #modify_UUID
+  #modify_UUID_ws
+  #modify_port
+  #modify_fallback_ws
+  #modify_ws
+}
+
 function modify_UUID() {
   [ -z "$UUID" ] && UUID=$(cat /proc/sys/kernel/random/uuid)
   cat ${xray_conf_dir}/config.json | jq 'setpath(["inbounds",0,"settings","clients",0,"id"];"'${UUID}'")' >${xray_conf_dir}/config_tmp.json
@@ -394,10 +403,30 @@ function restart_all() {
   judge "Xray 启动"
 }
 
-function basic_information() {
-  print_ok "VLESS+TCP+XTLS+Nginx 安装成功"
+function basic_ws_information() {
+  print_ok "VLESS+TCP+TLS+Nginx with WebSocket 混合模式 安装成功"
+  ws_information
+  print_ok "————————————————————————"
   vless_xtls-rprx-direct_information
-  vless_xtls-rprx-direct_link
+  ws_link
+}
+
+function ws_information() {
+  UUID=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].settings.clients[0].id | tr -d '"')
+  PORT=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].port)
+  FLOW=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].settings.clients[0].flow | tr -d '"')
+  WS_PATH=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].settings.fallbacks[2].path | tr -d '"')
+  DOMAIN=$(cat ${domain_tmp_dir}/domain)
+
+  echo -e "${Red} Xray 配置信息 ${Font}"
+  echo -e "${Red} 地址（address）:${Font}  $DOMAIN"
+  echo -e "${Red} 端口（port）：${Font}  $PORT"
+  echo -e "${Red} 用户 ID（UUID）：${Font} $UUID"
+  echo -e "${Red} 加密方式（security）：${Font} none "
+  echo -e "${Red} 传输协议（network）：${Font} ws "
+  echo -e "${Red} 伪装类型（type）：${Font} none "
+  echo -e "${Red} 路径（path）：${Font} $WS_PATH "
+  echo -e "${Red} 底层传输安全：${Font} tls "
 }
 
 function vless_xtls-rprx-direct_information() {
@@ -417,23 +446,31 @@ function vless_xtls-rprx-direct_information() {
   echo -e "${Red} 底层传输安全：${Font} xtls 或 tls"
 }
 
-function vless_xtls-rprx-direct_link() {
+function ws_link() {
   UUID=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].settings.clients[0].id | tr -d '"')
   PORT=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].port)
   FLOW=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].settings.clients[0].flow | tr -d '"')
+  WS_PATH=$(cat ${xray_conf_dir}/config.json | jq .inbounds[0].settings.fallbacks[2].path | tr -d '"')
+  WS_PATH_WITHOUT_SLASH=$(echo $WS_PATH | tr -d '/')
   DOMAIN=$(cat ${domain_tmp_dir}/domain)
 
-  print_ok "URL 链接（VLESS + TCP +  TLS）"
-  print_ok "vless://$UUID@$DOMAIN:$PORT?security=tls&flow=$FLOW#TLS_wulabing-$DOMAIN"
+  print_ok "URL 链接（VLESS + TCP + TLS）"
+  print_ok "vless://$UUID@$DOMAIN:$PORT?security=tls#TLS_wulabing-$DOMAIN"
 
-  print_ok "URL 链接（VLESS + TCP +  XTLS）"
+  print_ok "URL 链接（VLESS + TCP + XTLS）"
   print_ok "vless://$UUID@$DOMAIN:$PORT?security=xtls&flow=$FLOW#XTLS_wulabing-$DOMAIN"
+
+  print_ok "URL 链接（VLESS + WebSocket + TLS）"
+  print_ok "vless://$UUID@$DOMAIN:$PORT?type=ws&security=tls&path=%2f${WS_PATH_WITHOUT_SLASH}%2f#WS_TLS_wulabing-$DOMAIN"
   print_ok "-------------------------------------------------"
   print_ok "URL 二维码（VLESS + TCP + TLS）（请在浏览器中访问）"
-  print_ok "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless://$UUID@$DOMAIN:$PORT?security=tls%26flow=$FLOW%23TLS_wulabing-$DOMAIN"
+  print_ok "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless://$UUID@$DOMAIN:$PORT?security=tls%23TLS_wulabing-$DOMAIN"
 
   print_ok "URL 二维码（VLESS + TCP + XTLS）（请在浏览器中访问）"
   print_ok "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless://$UUID@$DOMAIN:$PORT?security=xtls%26flow=$FLOW%23XTLS_wulabing-$DOMAIN"
+
+  print_ok "URL 二维码（VLESS + WebSocket + TLS）（请在浏览器中访问）"
+  print_ok "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless://$UUID@$DOMAIN:$PORT?type=ws%26security=tls%26path=%2f${WS_PATH_WITHOUT_SLASH}%2f%23WS_TLS_wulabing-$DOMAIN"
 }
 
 function change_timezone(){
@@ -449,19 +486,17 @@ function down_config_files(){
 }
 
 is_root
-down_config_files
 system_check
-change_timezone
 dependency_install
 basic_optimization
 domain_check
 port_exist_check 80
 xray_install
-configure_xray
+configure_xray_ws
 nginx_install
 configure_nginx
 configure_web
 generate_certificate
 ssl_judge_and_install
 restart_all
-basic_information
+basic_ws_information
