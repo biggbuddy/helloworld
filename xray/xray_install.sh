@@ -248,6 +248,43 @@ function xray_install() {
   judge "域名记录"
 }
 
+function ssl_install() {
+  #  使用 Nginx 配合签发 无需安装相关依赖
+  #  if [[ "${ID}" == "centos" ||  "${ID}" == "ol" ]]; then
+  #    ${INS} socat nc
+  #  else
+  #    ${INS} socat netcat
+  #  fi
+  #  judge "安装 SSL 证书生成脚本依赖"
+
+  curl -L get.acme.sh | bash
+  judge "安装 SSL 证书生成脚本"
+}
+
+function acme() {
+  "$HOME"/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+
+  sed -i "6s/^/#/" "$nginx_conf"
+  sed -i "6a\\\troot $website_dir;" "$nginx_conf"
+  systemctl restart nginx
+
+  if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --webroot "$website_dir" -k ec-256 --force; then
+    print_ok "SSL 证书生成成功"
+    sleep 2
+    if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath /ssl/xray.crt --keypath /ssl/xray.key --reloadcmd "systemctl restart xray" --ecc --force; then
+      print_ok "SSL 证书配置成功"
+      sleep 2
+    fi
+  else
+    print_error "SSL 证书生成失败"
+    rm -rf "$HOME/.acme.sh/${domain}_ecc"
+    exit 1
+  fi
+
+  sed -i "7d" "$nginx_conf"
+  sed -i "6s/#//" "$nginx_conf"
+}
+
 function configure_xray() {
   cd /usr/local/etc/xray && rm -f config.json && cp xray_xtls-rprx-direct.json .
   # modify_UUID
@@ -290,7 +327,7 @@ function nginx_install() {
 
 function configure_nginx() {
   nginx_conf="/etc/nginx/conf.d/${domain}.conf"
-  cd /etc/nginx/conf.d/ && rm -f ${domain}.conf && wget -O ${domain}.conf https://raw.githubusercontent.com/biggbuddy/helloworld/${github_branch}/xray/web.conf
+  cd /etc/nginx/conf.d/ && rm -f ${domain}.conf && sudo wget -O ${domain}.conf https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.conf
   sed -i "s/xxx/${domain}/g" ${nginx_conf}
   judge "Nginx config modify"
 
@@ -300,7 +337,7 @@ function configure_nginx() {
 function configure_web() {
   rm -rf /www/xray_web
   mkdir -p /www/xray_web
-  tar xzf web.tar.gz -C /www/xray_web
+  tar xzf ~/web.tar.gz -C /www/xray_web
   judge "站点伪装"
   rm -f web.tar.gz
 }
@@ -407,7 +444,6 @@ function change_timezone(){
 }
 
 function down_config_files(){
-  sudo wget -c -O web.conf https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.conf
   sudo wget -c -O web.tar.gz https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.tar.gz
   sudo wget -c -O xray_xtls-rprx-direct.json https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/xray_xtls-rprx-direct.json
 }
