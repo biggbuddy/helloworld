@@ -482,7 +482,7 @@ function change_timezone(){
 
 function down_config_files(){
   sudo wget -c -O web.tar.gz https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.tar.gz
-  sudo wget -c -O xray_xtls-rprx-direct.json https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/xray_tls_ws_mix-rprx-direct.json
+  sudo wget -c -O xray_tls_ws_mix-rprx-direct.json https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/xray_tls_ws_mix-rprx-direct.json
 }
 
 is_root
