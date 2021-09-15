@@ -286,7 +286,7 @@ function acme() {
 }
 
 function configure_xray() {
-  cd /usr/local/etc/xray && rm -f config.json && cp xray_xtls-rprx-direct.json .
+  cd /usr/local/etc/xray && rm -f config.json && cp ~/xray_xtls-rprx-direct.json config.json
   # modify_UUID
   # modify_port
 }
