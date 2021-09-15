@@ -407,9 +407,9 @@ function change_timezone(){
 }
 
 function down_config_files(){
-  wget -c -O web.conf https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.conf
-  wget -c -O web.tar.gz https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.tar.gz
-  wget -c -O xray_xtls-rprx-direct.json https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/xray_xtls-rprx-direct.json
+  sudo wget -c -O web.conf https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.conf
+  sudo wget -c -O web.tar.gz https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.tar.gz
+  sudo wget -c -O xray_xtls-rprx-direct.json https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/xray_xtls-rprx-direct.json
 }
 
 is_root
