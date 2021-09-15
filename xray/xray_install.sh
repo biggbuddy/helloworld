@@ -399,8 +399,22 @@ function vless_xtls-rprx-direct_link() {
   print_ok "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=vless://$UUID@$DOMAIN:$PORT?security=xtls%26flow=$FLOW%23XTLS_wulabing-$DOMAIN"
 }
 
+function change_timezone(){
+  timedatectl set-timezone Asia/Shanghai
+  timedatectl set-ntp true
+  timedatectl 
+  print_ok "timezone change done...."
+}
+
+function down_config_files(){
+  wget https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.conf
+  wget https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/web.tar.gz
+  wget https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/xray_xtls-rprx-direct.json
+}
+
 is_root
 system_check
+change_timezone
 dependency_install
 basic_optimization
 domain_check
