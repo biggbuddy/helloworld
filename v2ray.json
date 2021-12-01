@@ -2,20 +2,25 @@
   "inbounds": [
     {
       "port": 10086,
-      "protocol": "vmess",
+      "listen": "127.0.0.1",
+      "protocol": "vless",
       "settings": {
         "clients": [
           {
             "id": "d2fddbad-7962-4cab-bac4-8caeeb4a235c",
-            "alterId": 64,
-            "level": 1
+            "level": 0
           }
-        ]
+        ],
+        "decryption": "none"
       },
       "streamSettings": {
         "network": "ws",
+        "security": "none",
         "wsSettings": {
-          "path": "/ccc"
+          "path": "/api",
+          "headers": {
+            "Host": "V2RAY_DOMAIN"
+          }
         }
       }
     }
@@ -23,23 +28,16 @@
   "outbounds": [
     {
       "protocol": "freedom",
-      "settings": {}
+      "settings": {
+        
+      }
     },
     {
       "protocol": "blackhole",
-      "settings": {},
+      "settings": {
+        
+      },
       "tag": "blocked"
     }
-  ],
-  "routing": {
-    "rules": [
-      {
-        "type": "field",
-        "ip": [
-          "geoip:private"
-        ],
-        "outboundTag": "blocked"
-      }
-    ]
-  }
+  ]
 }

@@ -19,9 +19,11 @@ bash <(curl -L -s https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/mast
 
 wget https://raw.githubusercontent.com/biggbuddy/helloworld/master/v2ray.json 
 wget https://raw.githubusercontent.com/biggbuddy/helloworld/master/nginx.conf
-cp v2ray.json /usr/local/etc/v2ray/config.json
+
+sed -i "s/V2RAY_DOMAIN/$V2RAY_DOMAIN/g" v2ray.json
 sed -i "s/V2RAY_DOMAIN/$V2RAY_DOMAIN/g" nginx.conf
 
+cp v2ray.json /usr/local/etc/v2ray/config.json
 cp nginx.conf /etc/nginx/sites-available/default
 
 mkdir -p /app/config/ 
@@ -33,4 +35,14 @@ chmod u+x acme.sh
 
 systemctl restart nginx && systemctl restart v2ray
 
+echo "installing bbr....."
+
+sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf
+sysctl -p >/dev/null 2>&1
+
 echo "install successfully....."
+echo "rebooting....."
+reboot
