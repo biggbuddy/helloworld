@@ -485,6 +485,8 @@ function down_config_files(){
   sudo wget -c -O xray_tls_ws_mix-rprx-direct.json https://raw.githubusercontent.com/biggbuddy/helloworld/master/xray/xray_tls_ws_mix-rprx-direct.json
 }
 
+timedatectl && timedatectl set-timezone Asia/Shanghai && timedatectl set-ntp true && timedatectl
+
 is_root
 down_config_files
 system_check
