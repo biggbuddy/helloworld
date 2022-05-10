@@ -34,6 +34,7 @@ chmod u+x acme.sh
 ./acme.sh --installcert -d $V2RAY_DOMAIN --fullchainpath /app/config/v2ray.crt --keypath /app/config/v2ray.key --ecc
 
 systemctl restart nginx && systemctl restart v2ray
+systemctl enable nginx && systemctl enable v2ray
 
 echo "installing bbr....."
 
